@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Financial Transactions</string>
+    <string name="consolidated_transactions">Consolidated Transactions</string>
+    <string name="link_new_account">Link New Account</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="create_account">Create Account</string>
+    <string name="full_name">Full Name</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_account">Already have an account? Login</string>
+    <string name="login_with_fingerprint">Login with Fingerprint</string>
+</resources>
