@@ -106,23 +106,36 @@ def get_transactions():
                 end_date=end_date
             )
             response = client.transactions_get(request_params)
-            for txn in response.transactions:
-                txn_date = txn.date
-                if isinstance(txn_date, str):
-                    txn_date = datetime.strptime(txn_date, '%Y-%m-%d').date()
 
-                timestamp = int(datetime.combine(txn_date, datetime.min.time()).timestamp() * 1000)
-                all_txns.append({
-                    "id": txn.transaction_id,
-                    "amount": float(txn.amount),
-                    "merchant": txn.merchant_name or txn.name,
-                    "date": timestamp,
-                    "accountName": "Linked Account",
-                    "category": txn.category[0] if txn.category else "General",
-                    "institution": "Bank"
-                })
+            for txn in response.transactions:
+                try:
+                    # Robust date handling
+                    txn_date = txn.date
+                    if isinstance(txn_date, str):
+                        txn_date = datetime.strptime(txn_date, '%Y-%m-%d').date()
+
+                    timestamp = int(datetime.combine(txn_date, datetime.min.time()).timestamp() * 1000)
+
+                    all_txns.append({
+                        "id": txn.transaction_id,
+                        "amount": float(txn.amount),
+                        "merchant": txn.merchant_name or txn.name or "Unknown Merchant",
+                        "date": timestamp,
+                        "accountName": "Linked Account",
+                        "category": txn.category[0] if (txn.category and len(txn.category) > 0) else "General",
+                        "institution": "Bank"
+                    })
+                except Exception as inner_e:
+                    print(f"Error parsing transaction {getattr(txn, 'transaction_id', 'unknown')}: {inner_e}")
+
+        except plaid.ApiException as e:
+            error_response = json.loads(e.body)
+            if error_response.get('error_code') == 'PRODUCT_NOT_READY':
+                print(f"Transactions still syncing for token {token[:10]}...")
+            else:
+                print(f"Plaid API Error for token {token[:10]}: {e}")
         except Exception as e:
-            print(f"Error fetching transactions: {e}")
+            print(f"General Error fetching transactions: {e}")
 
     all_txns.sort(key=lambda x: x['date'], reverse=True)
     return jsonify(all_txns)
