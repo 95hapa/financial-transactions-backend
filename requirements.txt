@@ -1,3 +1,5 @@
 flask
 plaid-python
 gunicorn
+pymongo
+dnspython
