@@ -9,6 +9,7 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
 from plaid.model.item_remove_request import ItemRemoveRequest
+from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 from plaid.api import plaid_api
@@ -70,18 +71,30 @@ def exchange_token():
 def get_accounts():
     data = request.get_json()
     access_tokens = data.get('access_tokens', [])
-    unique_accounts = {} # Use a dictionary to deduplicate by account_id
+    unique_accounts = {}
 
     for token in access_tokens:
         try:
             request_params = AccountsGetRequest(access_token=token)
             response = client.accounts_get(request_params)
+
+            # Fetch Institution Name
+            institution_name = "Linked Bank"
+            try:
+                ins_id = response.item.institution_id
+                ins_request = InstitutionsGetByIdRequest(
+                    institution_id=ins_id,
+                    country_codes=[CountryCode('US')]
+                )
+                ins_response = client.institutions_get_by_id(ins_request)
+                institution_name = ins_response.institution.name
+            except:
+                pass
+
             for acc in response.accounts:
-                # If we've already seen this account ID, skip it
                 if acc.account_id in unique_accounts:
                     continue
 
-                # Map Plaid types to our App's enum
                 p_type = str(acc.type).lower()
                 p_subtype = str(acc.subtype).lower() if acc.subtype else ""
 
@@ -96,7 +109,7 @@ def get_accounts():
                 unique_accounts[acc.account_id] = {
                     "id": acc.account_id,
                     "name": acc.name,
-                    "institution": "Linked Bank",
+                    "institution": institution_name,
                     "balance": float(acc.balances.current or 0),
                     "type": app_type
                 }
