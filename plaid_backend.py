@@ -147,13 +147,14 @@ def get_transactions():
                     if isinstance(txn_date, str):
                         txn_date = datetime.strptime(txn_date, '%Y-%m-%d').date()
 
-                    timestamp = int(datetime.combine(txn_date, datetime.min.time()).timestamp() * 1000)
+                    # Send date as String for easier parsing on Android
+                    date_str = txn_date.strftime('%Y-%m-%d')
 
                     unique_txns[txn.transaction_id] = {
                         "id": txn.transaction_id,
                         "amount": float(txn.amount),
                         "merchant": txn.merchant_name or txn.name or "Unknown Merchant",
-                        "date": timestamp,
+                        "date": date_str,
                         "accountName": "Linked Account",
                         "category": txn.category[0] if (txn.category and len(txn.category) > 0) else "General",
                         "institution": "Bank"
