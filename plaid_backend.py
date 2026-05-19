@@ -149,16 +149,20 @@ def get_transactions():
                     print(f"Error parsing transaction {getattr(txn, 'transaction_id', 'unknown')}: {inner_e}")
 
         except plaid.ApiException as e:
-            error_response = json.loads(e.body)
-            if error_response.get('error_code') == 'PRODUCT_NOT_READY':
-                print(f"Transactions still syncing for token {token[:10]}...")
-            else:
+            try:
+                error_response = json.loads(e.body)
+                if error_response.get('error_code') == 'PRODUCT_NOT_READY':
+                    print(f"Transactions still syncing for token {token[:10]}...")
+                else:
+                    print(f"Plaid API Error for token {token[:10]}: {e}")
+            except:
                 print(f"Plaid API Error for token {token[:10]}: {e}")
         except Exception as e:
-            print(f"General Error fetching transactions: {e}")
+            print(f"General Error fetching transactions for token {token[:10]}: {e}")
 
     # Convert to list and sort by date descending
     result = list(unique_txns.values())
+    print(f"DEBUG: Returning {len(result)} total transactions across {len(access_tokens)} items")
     result.sort(key=lambda x: x['date'], reverse=True)
     return jsonify(result)
 
