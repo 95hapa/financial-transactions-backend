@@ -9,6 +9,7 @@ public class PlaidItem {
     @PrimaryKey
     @NonNull
     public String itemId;
+
     public String accessToken;
     public String institutionName;
 

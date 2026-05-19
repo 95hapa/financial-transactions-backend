@@ -5,9 +5,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
 import com.example.financialtransactions.model.PlaidItem;
-
 import java.util.List;
 
 @Dao
@@ -17,9 +15,6 @@ public interface PlaidItemDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertItem(PlaidItem item);
-
-    @Delete
-    void deleteItem(PlaidItem item);
 
     @Query("DELETE FROM plaid_items WHERE itemId = :itemId")
     void deleteByItemId(String itemId);

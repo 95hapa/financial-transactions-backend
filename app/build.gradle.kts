@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    // Using simple annotationProcessor for now since kapt/ksp have sync issues
+    // Using simple annotationProcessor with Java Room files to avoid Kotlin plugin conflicts
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.material)
     implementation(libs.plaid.link)

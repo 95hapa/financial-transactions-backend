@@ -8,4 +8,16 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="brand_pink_red">#FF4081</color>
+    <color name="brand_dark">#212121</color>
+    <color name="background_light">#F8F9FA</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="text_primary">#2D3436</color>
+    <color name="text_secondary">#636E72</color>
+
+    <color name="transaction_credit">#E8F5E9</color>
+    <color name="transaction_debit">#FFEBEE</color>
+    <color name="text_credit">#27AE60</color>
+    <color name="text_debit">#D63031</color>
+
+    <color name="card_border">#DFE6E9</color>
 </resources>

@@ -50,8 +50,5 @@ class LoginActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnLogin).setOnClickListener {
             biometricPrompt.authenticate(promptInfo)
         }
-
-        // Auto trigger biometric prompt
-        biometricPrompt.authenticate(promptInfo)
     }
 }
