@@ -70,13 +70,17 @@ def exchange_token():
 def get_accounts():
     data = request.get_json()
     access_tokens = data.get('access_tokens', [])
-    all_accounts = []
+    unique_accounts = {} # Use a dictionary to deduplicate by account_id
 
     for token in access_tokens:
         try:
             request_params = AccountsGetRequest(access_token=token)
             response = client.accounts_get(request_params)
             for acc in response.accounts:
+                # If we've already seen this account ID, skip it
+                if acc.account_id in unique_accounts:
+                    continue
+
                 # Map Plaid types to our App's enum
                 p_type = str(acc.type).lower()
                 p_subtype = str(acc.subtype).lower() if acc.subtype else ""
@@ -89,23 +93,23 @@ def get_accounts():
                 elif p_subtype == "savings":
                     app_type = "SAVINGS"
 
-                all_accounts.append({
+                unique_accounts[acc.account_id] = {
                     "id": acc.account_id,
                     "name": acc.name,
                     "institution": "Linked Bank",
                     "balance": float(acc.balances.current or 0),
                     "type": app_type
-                })
+                }
         except Exception as e:
             print(f"Error fetching accounts: {e}")
 
-    return jsonify(all_accounts)
+    return jsonify(list(unique_accounts.values()))
 
 @app.route('/api/transactions', methods=['POST'])
 def get_transactions():
     data = request.get_json()
     access_tokens = data.get('access_tokens', [])
-    all_txns = []
+    unique_txns = {} # Use a dictionary to deduplicate by transaction_id
 
     start_date = (datetime.now() - timedelta(days=30)).date()
     end_date = datetime.now().date()
@@ -120,6 +124,10 @@ def get_transactions():
             response = client.transactions_get(request_params)
 
             for txn in response.transactions:
+                # If we've already seen this transaction ID, skip it
+                if txn.transaction_id in unique_txns:
+                    continue
+
                 try:
                     # Robust date handling
                     txn_date = txn.date
@@ -128,7 +136,7 @@ def get_transactions():
 
                     timestamp = int(datetime.combine(txn_date, datetime.min.time()).timestamp() * 1000)
 
-                    all_txns.append({
+                    unique_txns[txn.transaction_id] = {
                         "id": txn.transaction_id,
                         "amount": float(txn.amount),
                         "merchant": txn.merchant_name or txn.name or "Unknown Merchant",
@@ -136,7 +144,7 @@ def get_transactions():
                         "accountName": "Linked Account",
                         "category": txn.category[0] if (txn.category and len(txn.category) > 0) else "General",
                         "institution": "Bank"
-                    })
+                    }
                 except Exception as inner_e:
                     print(f"Error parsing transaction {getattr(txn, 'transaction_id', 'unknown')}: {inner_e}")
 
@@ -149,8 +157,10 @@ def get_transactions():
         except Exception as e:
             print(f"General Error fetching transactions: {e}")
 
-    all_txns.sort(key=lambda x: x['date'], reverse=True)
-    return jsonify(all_txns)
+    # Convert to list and sort by date descending
+    result = list(unique_txns.values())
+    result.sort(key=lambda x: x['date'], reverse=True)
+    return jsonify(result)
 
 @app.route('/api/unlink_account', methods=['POST'])
 def unlink_account():
