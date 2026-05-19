@@ -77,12 +77,24 @@ def get_accounts():
             request_params = AccountsGetRequest(access_token=token)
             response = client.accounts_get(request_params)
             for acc in response.accounts:
+                # Map Plaid types to our App's enum
+                p_type = str(acc.type).lower()
+                p_subtype = str(acc.subtype).lower() if acc.subtype else ""
+
+                app_type = "CHECKING"
+                if p_type == "credit":
+                    app_type = "CREDIT_CARD"
+                elif p_type == "investment":
+                    app_type = "INVESTMENT"
+                elif p_subtype == "savings":
+                    app_type = "SAVINGS"
+
                 all_accounts.append({
                     "id": acc.account_id,
                     "name": acc.name,
                     "institution": "Linked Bank",
                     "balance": float(acc.balances.current or 0),
-                    "type": "CHECKING"
+                    "type": app_type
                 })
         except Exception as e:
             print(f"Error fetching accounts: {e}")
