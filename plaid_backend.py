@@ -122,7 +122,7 @@ def get_accounts():
 def get_transactions():
     data = request.get_json()
     access_tokens = data.get('access_tokens', [])
-    unique_txns = {} # Use a dictionary to deduplicate by transaction_id
+    unique_txns = {}
 
     start_date = (datetime.now() - timedelta(days=30)).date()
     end_date = datetime.now().date()
@@ -136,18 +136,27 @@ def get_transactions():
             )
             response = client.transactions_get(request_params)
 
+            # Fetch Institution Name for this token
+            institution_name = "Bank"
+            try:
+                ins_id = response.item.institution_id
+                ins_request = InstitutionsGetByIdRequest(
+                    institution_id=ins_id,
+                    country_codes=[CountryCode('US')]
+                )
+                ins_response = client.institutions_get_by_id(ins_request)
+                institution_name = ins_response.institution.name
+            except:
+                pass
+
             for txn in response.transactions:
-                # If we've already seen this transaction ID, skip it
                 if txn.transaction_id in unique_txns:
                     continue
 
                 try:
-                    # Robust date handling
                     txn_date = txn.date
                     if isinstance(txn_date, str):
                         txn_date = datetime.strptime(txn_date, '%Y-%m-%d').date()
-
-                    # Send date as String for easier parsing on Android
                     date_str = txn_date.strftime('%Y-%m-%d')
 
                     unique_txns[txn.transaction_id] = {
@@ -160,23 +169,12 @@ def get_transactions():
                         "institution": institution_name
                     }
                 except Exception as inner_e:
-                    print(f"Error parsing transaction {getattr(txn, 'transaction_id', 'unknown')}: {inner_e}")
+                    print(f"Error parsing transaction: {inner_e}")
 
-        except plaid.ApiException as e:
-            try:
-                error_response = json.loads(e.body)
-                if error_response.get('error_code') == 'PRODUCT_NOT_READY':
-                    print(f"Transactions still syncing for token {token[:10]}...")
-                else:
-                    print(f"Plaid API Error for token {token[:10]}: {e}")
-            except:
-                print(f"Plaid API Error for token {token[:10]}: {e}")
         except Exception as e:
-            print(f"General Error fetching transactions for token {token[:10]}: {e}")
+            print(f"Error fetching transactions for token: {e}")
 
-    # Convert to list and sort by date descending
     result = list(unique_txns.values())
-    print(f"DEBUG: Returning {len(result)} total transactions across {len(access_tokens)} items")
     result.sort(key=lambda x: x['date'], reverse=True)
     return jsonify(result)
 
