@@ -36,12 +36,15 @@ client = plaid_api.PlaidApi(api_client)
 
 @app.route('/api/link_token', methods=['GET'])
 def get_link_token():
-    print("DEBUG: Generating link token for transactions and auth...")
+    print("DEBUG: Generating flexible link token for transactions and investments...")
     try:
-        # Explicitly using 'transactions' and 'auth' for maximum bank compatibility (BofA, Chase, etc.)
-        # This removes the investment check that was causing errors.
+        # 'transactions' is the core product we need for balances and history.
+        # 'investments' is set as a required_if_supported product so it works for
+        # both standard banks (Chase/BofA) and brokerages (Fidelity/Voya) without errors.
+        # 'auth' is removed to prevent "money movement eligibility" errors at Capital One.
         request_params = LinkTokenCreateRequest(
-            products=[Products('transactions'), Products('auth')],
+            products=[Products('transactions')],
+            required_if_supported_products=[Products('investments')],
             client_name="Financial Transactions App",
             country_codes=[CountryCode('US')],
             language='en',
