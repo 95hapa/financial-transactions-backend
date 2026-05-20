@@ -38,7 +38,7 @@ client = plaid_api.PlaidApi(api_client)
 def get_link_token():
     try:
         request_params = LinkTokenCreateRequest(
-            products=[Products('transactions')],
+            products=[Products('transactions'), Products('investments')],
             client_name="Financial Transactions App",
             country_codes=[CountryCode('US')],
             language='en',
