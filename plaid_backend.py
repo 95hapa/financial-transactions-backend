@@ -152,12 +152,12 @@ def get_transactions():
 
                     unique_txns[txn.transaction_id] = {
                         "id": txn.transaction_id,
+                        "accountId": txn.account_id,
                         "amount": float(txn.amount),
                         "merchant": txn.merchant_name or txn.name or "Unknown Merchant",
                         "date": date_str,
-                        "accountName": "Linked Account",
                         "category": txn.category[0] if (txn.category and len(txn.category) > 0) else "General",
-                        "institution": "Bank"
+                        "institution": institution_name
                     }
                 except Exception as inner_e:
                     print(f"Error parsing transaction {getattr(txn, 'transaction_id', 'unknown')}: {inner_e}")
