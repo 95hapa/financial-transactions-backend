@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Account Name (e.g. My 401k)"
+        android:inputType="textCapWords" />
+
+    <EditText
+        android:id="@+id/etInstitution"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Institution (e.g. Voya)"
+        android:inputType="textCapWords" />
+
+    <EditText
+        android:id="@+id/etBalance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Current Balance"
+        android:inputType="numberDecimal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Account Type"
+        android:textSize="12sp" />
+
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" />
+
+</LinearLayout>

@@ -37,8 +37,10 @@ client = plaid_api.PlaidApi(api_client)
 @app.route('/api/link_token', methods=['GET'])
 def get_link_token():
     try:
+        # Simplified to just 'transactions' to prevent errors at banks like BofA
+        # Manual accounts handle Voya/Brokerages where Plaid fails
         request_params = LinkTokenCreateRequest(
-            products=[Products('transactions'), Products('investments')],
+            products=[Products('transactions')],
             client_name="Financial Transactions App",
             country_codes=[CountryCode('US')],
             language='en',
