@@ -36,11 +36,12 @@ client = plaid_api.PlaidApi(api_client)
 
 @app.route('/api/link_token', methods=['GET'])
 def get_link_token():
+    print("DEBUG: Generating link token for transactions and auth...")
     try:
-        # Simplified to just 'transactions' to prevent errors at banks like BofA
-        # Manual accounts handle Voya/Brokerages where Plaid fails
+        # Explicitly using 'transactions' and 'auth' for maximum bank compatibility (BofA, Chase, etc.)
+        # This removes the investment check that was causing errors.
         request_params = LinkTokenCreateRequest(
-            products=[Products('transactions')],
+            products=[Products('transactions'), Products('auth')],
             client_name="Financial Transactions App",
             country_codes=[CountryCode('US')],
             language='en',
